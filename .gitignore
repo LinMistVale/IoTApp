@@ -16,3 +16,6 @@ local.properties
 
 # Android Studio 本地配置：各机器自动生成，内含本机设备 ID 与绝对路径
 /.idea/
+
+# 契约夹具副本：由 syncContract 任务从 docs/contract/ 复制生成，真身不在本仓库
+/app/src/test/resources/contract/

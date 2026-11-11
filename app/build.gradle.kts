@@ -35,6 +35,25 @@ android {
     }
 }
 
+/*
+ * 契约夹具同步（任务书 §8.1）
+ * 真身在 docs/contract/，测试前复制到 src/test/resources/contract/，
+ * 保证「一份夹具、两端共用」。
+ *
+ * ⚠️ 临时方案 A：绝对路径。原因是当前 docs 和工程不在同一个仓库里。
+ * TODO(交付前必须改)：换成方案 C —— 把夹具放进工程内（或改工程内相对路径），
+ *                       否则别人 clone 下来 ./gradlew test 会因为找不到目录直接失败。
+ */
+val contractDir = "C:/Users/zzl/WorkBuddy/2026-11-04-13-53-22/docs/contract"
+val syncContract = tasks.register<Copy>("syncContract") {
+    from(contractDir)
+    into(layout.projectDirectory.dir("src/test/resources/contract").asFile)
+}
+// syncContract 会写入 src/test/resources，凡是要读该目录的任务都必须先跑它，
+// 否则 Gradle 9 会报 "implicit dependency" 校验错误
+tasks.matching { it.name.contains("UnitTest") || it.name.startsWith("test") }
+    .configureEach { dependsOn(syncContract) }
+
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
