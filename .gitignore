@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Android Studio 本地配置：各机器自动生成，内含本机设备 ID 与绝对路径
+/.idea/
