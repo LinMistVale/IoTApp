@@ -103,6 +103,17 @@ class DeviceRepository(
         }
     }
 
+    // ---------- 健康检查 ----------
+
+    /** 设置页「测试连接」用：只关心能不能连通，不关心业务数据 */
+    suspend fun ping(): UiState<Unit> = withContext(Dispatchers.IO) {
+        fetch(Unit) {
+            val health = api.healthz()
+            if (health.status.equals("ok", ignoreCase = true)) Unit
+            else throw ApiException("BAD_HEALTH", "服务状态异常：${health.status}")
+        }
+    }
+
     // ---------- 控制命令（类型化，禁止 UI 自己拼 DTO）----------
 
     suspend fun setLed(deviceId: String, on: Boolean): UiState<CommandResultUi> =

@@ -2,4 +2,69 @@
 <resources>
     <string name="app_name">IoTApp</string>
     <string name="environment_ready">IoTApp 环境就绪</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_history">历史</string>
+    <string name="nav_control">控制</string>
+    <string name="nav_chat">对话</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- 通用状态 -->
+    <string name="placeholder">--</string>
+    <string name="online">在线</string>
+    <string name="offline">离线</string>
+    <string name="retry">重试</string>
+    <string name="state_loading">正在加载…</string>
+    <string name="state_stale">数据可能过期，点重试刷新</string>
+    <string name="state_offline">设备离线，显示的是最后一次数据</string>
+    <string name="state_offline_no_data">设备离线，暂无历史数据，请检查设备电源与网络</string>
+    <string name="state_error">出错了：%1$s</string>
+    <string name="updated_placeholder">尚未获取数据</string>
+    <string name="updated_at">更新于 %1$s</string>
+
+    <!-- 指标 -->
+    <string name="metric_temp">温度</string>
+    <string name="metric_humi">湿度</string>
+    <string name="metric_lux">光照</string>
+    <string name="unit_temp">℃</string>
+    <string name="unit_humi">%</string>
+    <string name="unit_lux">lx</string>
+
+    <!-- 历史 -->
+    <string name="range_1h">最近 1 小时</string>
+    <string name="range_24h">最近 24 小时</string>
+    <string name="history_empty">暂无数据</string>
+    <string name="history_points">%1$d 个点</string>
+    <string name="history_downsampled">%1$d 个点（后端已降采样）</string>
+
+    <!-- 控制 -->
+    <string name="control_title">控制</string>
+    <string name="control_reload">重新加载配置</string>
+    <string name="control_led">开关灯</string>
+    <string name="control_led_hint">打开 / 关闭板载 LED</string>
+    <string name="control_speak_hint">要它说的话，最多 100 字</string>
+    <string name="control_send">发送</string>
+    <string name="control_speak_empty">先输入内容</string>
+
+    <!-- 对话 -->
+    <string name="chat_hint">说点什么，比如「现在多少度」</string>
+    <string name="chat_send">发送</string>
+    <string name="chat_sending">发送中…</string>
+
+    <!-- 设置 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_tip">手机热点重连后电脑 IP 会变，改这里即可，不用重新编译。</string>
+    <string name="settings_base_url">服务器地址（如 192.168.22.38:8000）</string>
+    <string name="settings_device_id">设备 ID</string>
+    <string name="settings_save">保存</string>
+    <string name="settings_test">测试连接</string>
+    <string name="settings_saved">已保存，正在重新加载</string>
+    <string name="settings_testing">正在测试…</string>
+    <string name="settings_test_ok">连接成功：%1$s</string>
+    <string name="settings_test_fail">连接失败：%1$s</string>
+    <string name="settings_current">当前地址：%1$s
+设备 ID：%2$s
+MQTT：%3$s（实时推送待接入）
+健康检查：%4$s</string>
 </resources>
