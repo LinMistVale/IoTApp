@@ -67,4 +67,20 @@
 设备 ID：%2$s
 MQTT：%3$s（实时推送待接入）
 健康检查：%4$s</string>
+
+    <!-- 告警 -->
+    <string name="alarm_title">告警</string>
+    <string name="action_back">返回</string>
+    <string name="alarm_empty">暂无告警</string>
+    <string name="alarm_empty_hint">指标超过阈值时，这里会出现记录</string>
+    <string name="alarm_unread_count">%1$d 条未读</string>
+    <string name="alarm_all_read">全部已读</string>
+    <string name="alarm_detail">实测 %1$s，阈值 %2$s</string>
+    <string name="alarm_level_info">提示</string>
+    <string name="alarm_level_warn">警告</string>
+    <string name="alarm_level_danger">严重</string>
+    <string name="alarm_ack_done">已标记为已读</string>
+    <string name="alarm_ack_fail">标记失败：%1$s</string>
+    <string name="alarm_tap_to_ack">点一下可标记已读</string>
+    <string name="alarm_badge_overflow">99+</string>
 </resources>

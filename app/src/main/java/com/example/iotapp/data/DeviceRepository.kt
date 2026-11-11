@@ -66,10 +66,19 @@ class DeviceRepository(
         emit(fetch(null) { api.history(deviceId, metric, from, to, bucket, limit).toUi(configCache) })
     }.flowOn(Dispatchers.IO)
 
-    /** 告警列表。 */
-    fun alarms(deviceId: String, limit: Int = 50): Flow<UiState<AlarmListUi>> = flow {
+    /**
+     * 告警列表。
+     *
+     * 契约 §2.5 的 `unacked_only` 参数原先没暴露出来（ApiService 有、Repository 没传），
+     * 导致「只看未读」只能前端自己过滤。这里补上，默认 false 保持原行为。
+     */
+    fun alarms(
+        deviceId: String,
+        limit: Int = 50,
+        unackedOnly: Boolean = false,
+    ): Flow<UiState<AlarmListUi>> = flow {
         emit(UiState.Loading)
-        emit(fetch(null) { api.alarms(deviceId, limit).toUi(configCache) })
+        emit(fetch(null) { api.alarms(deviceId, limit, unackedOnly).toUi(configCache) })
     }.flowOn(Dispatchers.IO)
 
     /**

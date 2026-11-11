@@ -37,6 +37,46 @@
                     android:layout_height="wrap_content"
                     android:text="@string/offline"
                     android:textSize="13sp" />
+
+                <!-- 右上角：告警入口（带未读角标） -->
+                <FrameLayout
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="4dp">
+
+                    <ImageButton
+                        android:id="@+id/btnAlarm"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/alarm_title"
+                        android:src="@drawable/ic_alarm" />
+
+                    <TextView
+                        android:id="@+id/tvBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="16dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_badge"
+                        android:gravity="center"
+                        android:minWidth="16dp"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:textColor="@color/white"
+                        android:textSize="10sp"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <!-- 右上角：设置入口（底部导航只留 4 个 Tab） -->
+                <ImageButton
+                    android:id="@+id/btnSettings"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/settings_title"
+                    android:src="@drawable/ic_settings" />
             </LinearLayout>
 
             <TextView

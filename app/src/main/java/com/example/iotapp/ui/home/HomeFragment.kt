@@ -8,11 +8,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.iotapp.MainActivity
 import com.example.iotapp.R
 import com.example.iotapp.core.UiState
+import com.example.iotapp.data.AppContainer
 import com.example.iotapp.databinding.FragmentHomeBinding
 import com.example.iotapp.model.TelemetryUi
+import com.example.iotapp.ui.alarm.AlarmFragment
 import com.example.iotapp.ui.common.VmFactory
+import com.example.iotapp.ui.settings.SettingsFragment
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 
 /** 首页：只做渲染，四类状态各自处理（Loading / Success / Offline / Error）。 */
@@ -30,10 +35,47 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.swipe.setOnRefreshListener { vm.refresh() }
         binding.btnRetry.setOnClickListener { vm.refresh() }
 
+        // 右上角两个入口：告警（带未读角标）、设置。都在 MainActivity 里压栈成二级页
+        binding.btnAlarm.setOnClickListener {
+            (activity as? MainActivity)?.openSecondary(AlarmFragment())
+        }
+        binding.btnSettings.setOnClickListener {
+            (activity as? MainActivity)?.openSecondary(SettingsFragment())
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.state.collect { render(it) }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 从告警页返回后角标要立刻反映最新未读数，所以放 onResume 而不是 onViewCreated
+        refreshBadge()
+    }
+
+    /**
+     * 未读角标（任务书 §7.1「右上角：告警入口 + 未读角标」）。
+     *
+     * 契约 v1.1 的 /alarms 不返回 unread 字段，只能拉列表自己数，
+     * 所以这里请求一次 limit=50（内网毫秒级）。
+     * 请求失败时保持原角标不动 —— 否则离线一进首页角标就被清零，等于谎报「没有未读」。
+     */
+    private fun refreshBadge() {
+        val b = _binding ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val state = AppContainer.repository().alarms(vm.deviceId).last()
+            if (state !is UiState.Success) return@launch
+
+            val count = state.data.unreadCount
+            b.tvBadge.text = if (count > 99) {
+                getString(R.string.alarm_badge_overflow)
+            } else {
+                count.toString()
+            }
+            b.tvBadge.visibility = if (count > 0) View.VISIBLE else View.GONE
         }
     }
 

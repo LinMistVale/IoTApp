@@ -3,13 +3,13 @@ package com.example.iotapp
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import com.example.iotapp.databinding.ActivityMainBinding
 import com.example.iotapp.ui.chat.ChatFragment
 import com.example.iotapp.ui.control.ControlFragment
 import com.example.iotapp.ui.history.HistoryFragment
 import com.example.iotapp.ui.home.HomeFragment
-import com.example.iotapp.ui.settings.SettingsFragment
 
 /**
  * 单 Activity + 底部导航。
@@ -41,16 +41,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun show(itemId: Int) {
+        // 切 Tab 前先清掉二级页（告警 / 设置），否则返回键会退到已经不显示的页面
+        supportFragmentManager.popBackStackImmediate(
+            null,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE,
+        )
+
         val fragment: Fragment = when (itemId) {
             R.id.nav_history -> HistoryFragment()
             R.id.nav_control -> ControlFragment()
             R.id.nav_chat -> ChatFragment()
-            R.id.nav_settings -> SettingsFragment()
             else -> HomeFragment()
         }
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             replace(R.id.container, fragment)
+        }
+    }
+
+    /**
+     * 首页右上角的告警 / 设置入口（任务书 §7.1）。
+     *
+     * 做成压栈的二级页面：底部导航保持在原位，返回键退回首页。
+     */
+    fun openSecondary(fragment: Fragment) {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.container, fragment)
+            addToBackStack(null)
         }
     }
 

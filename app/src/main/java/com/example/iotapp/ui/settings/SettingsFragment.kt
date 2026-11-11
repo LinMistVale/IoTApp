@@ -26,6 +26,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         _binding = FragmentSettingsBinding.bind(view)
         val settings = AppContainer.settings
 
+        // 设置已从底部 Tab 移到首页右上角，作为二级页压栈，返回键必须能退
+        binding.btnBack.setOnClickListener { parentFragmentManager.popBackStack() }
+
         binding.etBaseUrl.setText(settings.baseUrl)
         binding.etDeviceId.setText(settings.deviceId)
         showCurrent(settings.baseUrl)

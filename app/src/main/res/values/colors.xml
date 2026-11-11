@@ -18,4 +18,9 @@
     <color name="bubble_user_bg">#FFEEEDFE</color>
     <color name="bubble_user_text">#FF26215C</color>
     <color name="bubble_bot_bg">#FFF1EFE8</color>
+
+    <!-- 告警级别（契约 §2.5：info / warn / danger） -->
+    <color name="level_info">#FF1E88E5</color>
+    <color name="level_warn">#FFF9A825</color>
+    <color name="level_danger">#FFC62828</color>
 </resources>

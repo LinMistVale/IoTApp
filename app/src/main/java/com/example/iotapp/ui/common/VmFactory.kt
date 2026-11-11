@@ -3,6 +3,7 @@ package com.example.iotapp.ui.common
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.iotapp.data.AppContainer
+import com.example.iotapp.ui.alarm.AlarmViewModel
 import com.example.iotapp.ui.chat.ChatViewModel
 import com.example.iotapp.ui.control.ControlViewModel
 import com.example.iotapp.ui.history.HistoryViewModel
@@ -23,6 +24,7 @@ class VmFactory : ViewModelProvider.Factory {
             modelClass.isAssignableFrom(HistoryViewModel::class.java) -> HistoryViewModel(repo, settings)
             modelClass.isAssignableFrom(ControlViewModel::class.java) -> ControlViewModel(repo, settings)
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> ChatViewModel(repo, settings)
+            modelClass.isAssignableFrom(AlarmViewModel::class.java) -> AlarmViewModel(repo, settings)
             else -> throw IllegalArgumentException("未知的 ViewModel: ${modelClass.name}")
         }
         return viewModel as T
