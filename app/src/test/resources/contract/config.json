@@ -1,0 +1,95 @@
+{
+  "device_id": "s3-01",
+  "version": 3,
+  "metrics": [
+    {
+      "key": "temp",
+      "label": "温度",
+      "unit": "℃",
+      "precision": 1
+    },
+    {
+      "key": "humi",
+      "label": "湿度",
+      "unit": "%",
+      "precision": 1
+    },
+    {
+      "key": "lux",
+      "label": "光照",
+      "unit": "lx",
+      "precision": 0
+    }
+  ],
+  "thresholds": {
+    "temp": {
+      "min": 15,
+      "max": 40,
+      "step": 0.5,
+      "default": 30
+    },
+    "humi": {
+      "min": 20,
+      "max": 90,
+      "step": 1,
+      "default": 70
+    }
+  },
+  "interval": {
+    "options": [
+      2,
+      5,
+      10,
+      30
+    ],
+    "default": 2
+  },
+  "volume": {
+    "min": 0,
+    "max": 100,
+    "step": 5,
+    "default": 60
+  },
+  "modes": [
+    {
+      "value": "chat",
+      "label": "对话"
+    },
+    {
+      "value": "silent",
+      "label": "静音"
+    }
+  ],
+  "commands": [
+    {
+      "cmd": "led",
+      "label": "开关灯",
+      "type": "switch"
+    },
+    {
+      "cmd": "threshold",
+      "label": "告警阈值",
+      "type": "threshold"
+    },
+    {
+      "cmd": "interval",
+      "label": "上报间隔",
+      "type": "select"
+    },
+    {
+      "cmd": "volume",
+      "label": "音量",
+      "type": "slider"
+    },
+    {
+      "cmd": "speak",
+      "label": "让它说话",
+      "type": "text"
+    },
+    {
+      "cmd": "mode",
+      "label": "工作模式",
+      "type": "radio"
+    }
+  ]
+}

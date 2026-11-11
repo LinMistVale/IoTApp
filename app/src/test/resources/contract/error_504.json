@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "AI_TIMEOUT",
+    "message": "AI 服务超时，请重试",
+    "request_id": "req-1730000000-5d2e"
+  }
+}

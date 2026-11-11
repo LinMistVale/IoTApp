@@ -1,0 +1,6 @@
+{
+  "metric": "lux",
+  "bucket": "auto",
+  "downsampled": false,
+  "points": []
+}

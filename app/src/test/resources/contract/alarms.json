@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": 12,
+      "ts": 1730000000,
+      "metric": "temp",
+      "value": 31.2,
+      "limit": 30,
+      "level": "warn",
+      "ack": false
+    },
+    {
+      "id": 11,
+      "ts": 1729999000,
+      "metric": "humi",
+      "value": 91.5,
+      "limit": 90,
+      "level": "danger",
+      "ack": true
+    }
+  ]
+}

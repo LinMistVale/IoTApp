@@ -22,7 +22,7 @@ import org.junit.Test
  * 思路：夹具 JSON 就是契约，用 MockWebServer 原样返回，断言 App 能正确解析。
  * 后端哪天把字段改了，这里立刻红，比群里通知可靠。
  *
- * 夹具来源：由 `syncContract` 任务从 docs/contract/ 复制到 test resources。
+ * 夹具来源：app/src/test/resources/contract/（随仓库提交，直接读 classpath，无需同步任务）。
  */
 class ContractTest {
 

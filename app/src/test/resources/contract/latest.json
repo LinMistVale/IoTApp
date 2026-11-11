@@ -1,0 +1,9 @@
+{
+  "device_id": "s3-01",
+  "ts": 1730000000,
+  "temp": 24.6,
+  "humi": 55.2,
+  "lux": 320,
+  "db": null,
+  "online": true
+}
