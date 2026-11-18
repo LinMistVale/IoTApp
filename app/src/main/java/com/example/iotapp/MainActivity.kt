@@ -1,11 +1,18 @@
 package com.example.iotapp
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import com.example.iotapp.databinding.ActivityMainBinding
+import com.example.iotapp.ui.alarm.AlarmFragment
 import com.example.iotapp.ui.chat.ChatFragment
 import com.example.iotapp.ui.control.ControlFragment
 import com.example.iotapp.ui.history.HistoryFragment
@@ -19,6 +26,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var currentItem = R.id.nav_home
+
+    /**
+     * Android 13+ 的通知权限。
+     *
+     * manifest 里声明只是"我可能会用"，不申请到就是发不出去 —— 而且不报错，
+     * 表现为「代码没错但通知就是不弹」，是最容易卡住的一个点。
+     * 用户拒绝也能继续用，只是不弹通知。
+     */
+    private val requestNotifyPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* 静默降级 */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +54,35 @@ class MainActivity : AppCompatActivity() {
                 show(item.itemId)
             }
             true
+        }
+
+        ensureNotificationPermission()
+
+        // 从通知点进来：直接落在告警页
+        if (savedInstanceState == null) handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(EXTRA_OPEN_ALARM, false) != true) return
+        // 消费掉，避免旋转屏幕重建时又跳一次
+        intent.removeExtra(EXTRA_OPEN_ALARM)
+        openSecondary(AlarmFragment())
+    }
+
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            requestNotifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
@@ -77,7 +123,10 @@ class MainActivity : AppCompatActivity() {
         outState.putInt(KEY_ITEM, currentItem)
     }
 
-    private companion object {
-        const val KEY_ITEM = "current_item"
+    companion object {
+        /** 通知点击时带过来的标记，见 [com.example.iotapp.notify.AlarmNotifier] */
+        const val EXTRA_OPEN_ALARM = "extra_open_alarm"
+
+        private const val KEY_ITEM = "current_item"
     }
 }

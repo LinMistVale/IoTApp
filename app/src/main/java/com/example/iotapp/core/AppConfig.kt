@@ -56,4 +56,7 @@ object AppConfig {
 
     /** 告警主题：iot/{deviceId}/alarm */
     fun topicAlarm(deviceId: String) = "iot/$deviceId/alarm"
+
+    /** 设备状态主题：iot/{deviceId}/status（retained + LWT，掉线自动置 offline） */
+    fun topicStatus(deviceId: String) = "iot/$deviceId/status"
 }

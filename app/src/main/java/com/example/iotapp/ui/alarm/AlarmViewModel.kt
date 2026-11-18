@@ -44,6 +44,7 @@ class AlarmViewModel(
 
     init {
         refresh()
+        observePush()
     }
 
     fun refresh() {
@@ -70,6 +71,26 @@ class AlarmViewModel(
                 is UiState.Error -> _events.tryEmit(AlarmEvent.AckFail(result.message))
                 is UiState.Offline -> _events.tryEmit(AlarmEvent.AckFail(null))
                 UiState.Loading -> Unit
+            }
+        }
+    }
+
+    /**
+     * MQTT 推来的新告警直接插到列表顶部。
+     *
+     * 不做整页重拉：一是没必要，二是重拉会让滚动位置跳掉。
+     * 同 id 的直接忽略 —— retained 消息重连时会重发最后一条。
+     */
+    private fun observePush() {
+        viewModelScope.launch {
+            repo.mqttAlarm().collect { ui ->
+                val current = _state.value
+                if (current !is UiState.Success) return@collect
+                if (current.data.items.any { it.id == ui.id }) return@collect
+
+                val items = listOf(ui) + current.data.items
+                val unread = current.data.unread?.plus(1)
+                _state.value = UiState.Success(AlarmListUi(items, unread))
             }
         }
     }

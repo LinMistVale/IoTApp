@@ -3,12 +3,17 @@ package com.example.iotapp.data
 import com.example.iotapp.core.ApiException
 import com.example.iotapp.core.UiState
 import com.example.iotapp.core.toUiState
+import com.example.iotapp.data.mqtt.MqttEvent
+import com.example.iotapp.data.mqtt.MqttManager
+import com.example.iotapp.data.mqtt.MqttState
 import com.example.iotapp.data.remote.ApiClient
 import com.example.iotapp.data.remote.ApiService
 import com.example.iotapp.data.remote.toApiException
+import com.example.iotapp.data.remote.dto.AlarmDto
 import com.example.iotapp.data.remote.dto.ChatRequest
 import com.example.iotapp.data.remote.dto.CommandDto
 import com.example.iotapp.model.AlarmListUi
+import com.example.iotapp.model.AlarmUi
 import com.example.iotapp.model.ChatUi
 import com.example.iotapp.model.CommandResultUi
 import com.example.iotapp.model.DeviceConfigUi
@@ -17,8 +22,11 @@ import com.example.iotapp.model.TelemetryUi
 import com.google.gson.JsonElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
@@ -112,8 +120,32 @@ class DeviceRepository(
         }
     }
 
-    // ---------- 健康检查 ----------
+    // ---------- MQTT 实时推送 ----------
 
+    /**
+     * MQTT 推来的遥测，已转成 UiModel。
+     *
+     * 与 [telemetry]（HTTP 单次请求）的区别：这个流是持续的，实测每 2 秒一条。
+     * 首页首屏仍走 HTTP，连上 MQTT 后由这里接管，实现「数字自己跳」。
+     */
+    fun mqttTelemetry(): Flow<TelemetryUi> =
+        MqttManager.events
+            .filterIsInstance<MqttEvent.Telemetry>()
+            .map { it.dto.toUi() }
+
+    /** MQTT 推来的新告警（单条），告警页用它插到列表顶部 */
+    fun mqttAlarm(): Flow<AlarmUi> =
+        MqttManager.events
+            .filterIsInstance<MqttEvent.Alarm>()
+            .map { it.dto.toUi(configCache) }
+
+    /** 通知模块用：把一条 AlarmDto 转成可直接显示的文字（复用同一套 Mapper） */
+    fun alarmUi(dto: AlarmDto): AlarmUi = dto.toUi(configCache)
+
+    /** MQTT 连接状态，界面据此在「实时刷新」与「HTTP 兜底」之间切换 */
+    val mqttState: StateFlow<MqttState> get() = MqttManager.state
+
+    // ---------- 健康检查 ----------
     /** 设置页「测试连接」用：只关心能不能连通，不关心业务数据 */
     suspend fun ping(): UiState<Unit> = withContext(Dispatchers.IO) {
         fetch(Unit) {

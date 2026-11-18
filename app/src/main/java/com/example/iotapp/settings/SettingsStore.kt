@@ -3,6 +3,7 @@ package com.example.iotapp.settings
 import android.content.Context
 import com.example.iotapp.core.AppConfig
 import com.example.iotapp.data.remote.ApiClient
+import java.util.UUID
 
 /**
  * 本地配置：服务器地址 + 设备 ID + MQTT 地址。
@@ -40,12 +41,40 @@ class SettingsStore(context: Context) {
             sp.edit().putString(KEY_MQTT_URL, value.trim().ifBlank { AppConfig.MQTT_URL }).apply()
         }
 
+    /**
+     * MQTT clientId：每台设备必须唯一，否则 broker 会把先连的踢下线。
+     *
+     * 用「首次生成 UUID 并存下来」而不是 Android ID：恢复出厂设置、换签名重装都会让
+     * Android ID 变化，而 clientId 一变 broker 就当新客户端处理，未确认消息直接丢。
+     */
+    val mqttClientId: String
+        get() {
+            sp.getString(KEY_MQTT_CLIENT_ID, null)?.let { if (it.isNotBlank()) return it }
+            val generated = "app-" + UUID.randomUUID().toString().replace("-", "").take(10)
+            sp.edit().putString(KEY_MQTT_CLIENT_ID, generated).apply()
+            return generated
+        }
+
+    /**
+     * 已经弹过通知的最大告警 id。
+     *
+     * `iot/{id}/alarm` 是 retained 的，每次重连 broker 都会重发最后一条；
+     * 后端某次重放也可能给旧数据。靠这个值保证同一条只响一次。
+     */
+    var lastNotifiedAlarmId: Long
+        get() = sp.getLong(KEY_LAST_ALARM_ID, 0L)
+        set(value) {
+            sp.edit().putLong(KEY_LAST_ALARM_ID, value).apply()
+        }
+
     companion object {
         const val DEFAULT_DEVICE_ID = AppConfig.DEVICE_ID
 
         private const val KEY_BASE_URL = "base_url"
         private const val KEY_DEVICE_ID = "device_id"
         private const val KEY_MQTT_URL = "mqtt_url"
+        private const val KEY_MQTT_CLIENT_ID = "mqtt_client_id"
+        private const val KEY_LAST_ALARM_ID = "last_notified_alarm_id"
 
         /**
          * 规范化地址。Retrofit 的 baseUrl **必须以 `/` 结尾**，

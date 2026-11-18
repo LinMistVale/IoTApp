@@ -3,12 +3,17 @@ package com.example.iotapp.ui.settings
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.iotapp.R
 import com.example.iotapp.core.AppConfig
 import com.example.iotapp.core.UiState
 import com.example.iotapp.data.AppContainer
+import com.example.iotapp.data.mqtt.MqttManager
+import com.example.iotapp.data.mqtt.MqttState
 import com.example.iotapp.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.launch
 
@@ -33,12 +38,21 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         binding.etDeviceId.setText(settings.deviceId)
         showCurrent(settings.baseUrl)
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                MqttManager.state.collect { renderMqtt(it) }
+            }
+        }
+
         binding.btnSave.setOnClickListener {
             settings.baseUrl = binding.etBaseUrl.text?.toString().orEmpty()
             settings.deviceId = binding.etDeviceId.text?.toString().orEmpty()
 
             // 地址变了必须重建 Repository，否则还在用旧地址的 Retrofit 实例
             AppContainer.resetRepository()
+
+            // 设备 ID 变了要重新订阅主题，否则还在收旧设备的推送
+            MqttManager.connect(settings.mqttUrl, settings.deviceId, settings.mqttClientId)
 
             binding.etBaseUrl.setText(settings.baseUrl)
             showCurrent(settings.baseUrl)
@@ -72,6 +86,22 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 binding.btnTest.isEnabled = true
             }
         }
+    }
+
+    /** 实时推送的连接状态，用来判断首页走的是 MQTT 还是 HTTP 兜底 */
+    private fun renderMqtt(state: MqttState) {
+        binding.tvMqtt.text = when (state) {
+            is MqttState.Connected -> getString(R.string.mqtt_connected)
+            MqttState.Connecting -> getString(R.string.mqtt_connecting)
+            MqttState.Disconnected -> getString(R.string.mqtt_disconnected)
+            is MqttState.Lost -> getString(R.string.mqtt_failed, state.reason)
+        }
+        binding.tvMqtt.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                if (state is MqttState.Connected) R.color.state_ok else R.color.state_bad,
+            ),
+        )
     }
 
     private fun showCurrent(baseUrl: String) {
