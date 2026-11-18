@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 仪表盘：只暴露主弧颜色，其余（轨道、阈值、刻度文字）用统一灰度 -->
+    <declare-styleable name="GaugeView">
+        <attr name="gaugeArcColor" format="color" />
+    </declare-styleable>
+
+</resources>

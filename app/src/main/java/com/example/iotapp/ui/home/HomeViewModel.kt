@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.iotapp.core.UiState
 import com.example.iotapp.data.DeviceRepository
 import com.example.iotapp.data.mqtt.MqttState
+import com.example.iotapp.model.DeviceConfigUi
 import com.example.iotapp.model.TelemetryUi
 import com.example.iotapp.settings.SettingsStore
 import kotlinx.coroutines.Job
@@ -40,6 +41,13 @@ class HomeViewModel(
     private val _mqttState = MutableStateFlow<MqttState>(MqttState.Disconnected)
     val mqttState: StateFlow<MqttState> = _mqttState.asStateFlow()
 
+    /**
+     * /config 里的量程与阈值，仪表盘据此画刻度和红线。
+     * 取不到就保持 GaugeView 的默认量程，界面不会因此报错。
+     */
+    private val _config = MutableStateFlow<DeviceConfigUi?>(null)
+    val config: StateFlow<DeviceConfigUi?> = _config.asStateFlow()
+
     val deviceId: String get() = settings.deviceId
 
     private var lastPushAt = 0L
@@ -47,9 +55,18 @@ class HomeViewModel(
 
     init {
         refresh()
+        loadConfig()
         observeRealtime()
         observeConnection()
         observeNewAlarms()
+    }
+
+    /** 只取一次：量程和阈值不会频繁变，用户改阈值后会重新进首页 onResume 触发 syncBadge，量程无需重取 */
+    private fun loadConfig() {
+        viewModelScope.launch {
+            val state = repo.config(settings.deviceId)
+            if (state is UiState.Success) _config.value = state.data
+        }
     }
 
     /** 下拉刷新 / 断线重试 / 首次加载都走它 */

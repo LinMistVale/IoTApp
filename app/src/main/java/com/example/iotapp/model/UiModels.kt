@@ -17,6 +17,14 @@ data class TelemetryUi(
     val online: Boolean,
     /** 数据陈旧：超过阈值没更新，卡片需要置灰提示 */
     val stale: Boolean,
+    /*
+     * 原始数值，只给仪表盘画指针用。
+     * 界面文字一律读上面的 Text 字段（格式化规则在 Mappers 里统一），
+     * 这里保留数字是因为指针要算「值在量程里的比例」，解析字符串容易踩 "--" 的坑。
+     */
+    val temp: Float? = null,
+    val humi: Float? = null,
+    val lux: Float? = null,
 )
 
 data class HistoryPointUi(val ts: Long, val value: Float)

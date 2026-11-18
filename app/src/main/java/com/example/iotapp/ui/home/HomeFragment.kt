@@ -12,10 +12,12 @@ import com.example.iotapp.MainActivity
 import com.example.iotapp.R
 import com.example.iotapp.core.UiState
 import com.example.iotapp.databinding.FragmentHomeBinding
+import com.example.iotapp.model.DeviceConfigUi
 import com.example.iotapp.model.TelemetryUi
 import com.example.iotapp.ui.alarm.AlarmFragment
 import com.example.iotapp.ui.common.VmFactory
 import com.example.iotapp.ui.settings.SettingsFragment
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /** 首页：只做渲染，四类状态各自处理（Loading / Success / Offline / Error）。 */
@@ -45,6 +47,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { vm.state.collect { render(it) } }
                 launch { vm.badge.collect { renderBadge(it) } }
+                launch { vm.config.collect { applyGaugeConfig(it) } }
             }
         }
     }
@@ -70,6 +73,40 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
         b.tvBadge.visibility = if (count > 0) View.VISIBLE else View.GONE
     }
+
+    /**
+     * 仪表盘的量程与阈值线全部来自 /config，不在 XML 里写死。
+     * 拿不到 config 时保持默认量程、不画红线，读数照常显示，不影响主流程。
+     */
+    private fun applyGaugeConfig(config: DeviceConfigUi?) {
+        val b = _binding ?: return
+        if (config == null) return
+
+        config.thresholds["temp"]?.let { r ->
+            b.gaugeTemp.setRange(r.min, r.max)
+            b.gaugeTemp.setThreshold(r.default)
+            b.tvTempThreshold.text = getString(
+                R.string.gauge_threshold,
+                formatThreshold(r.default, r.step),
+                getString(R.string.unit_temp),
+            )
+        }
+
+        config.thresholds["humi"]?.let { r ->
+            b.gaugeHumi.setRange(r.min, r.max)
+            b.gaugeHumi.setThreshold(r.default)
+            b.tvHumiThreshold.text = getString(
+                R.string.gauge_threshold,
+                formatThreshold(r.default, r.step),
+                getString(R.string.unit_humi),
+            )
+        }
+    }
+
+    /** 阈值的步长是 1（如湿度 79）就不显示小数，0.5（如温度 30.0）保留一位 */
+    private fun formatThreshold(v: Float, step: Float): String =
+        if (step >= 1f) String.format(Locale.US, "%.0f", v)
+        else String.format(Locale.US, "%.1f", v)
 
     private fun render(state: UiState<TelemetryUi>) {
         binding.swipe.isRefreshing = false
@@ -114,6 +151,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.tvTemp.text = na
         binding.tvHumi.text = na
         binding.tvLux.text = na
+        binding.gaugeTemp.setValue(null)
+        binding.gaugeHumi.setValue(null)
         binding.tvUpdated.text = getString(R.string.updated_placeholder)
         binding.tvOnline.text = getString(R.string.offline)
         binding.tvOnline.setTextColor(ContextCompat.getColor(requireContext(), R.color.state_bad))
@@ -131,6 +170,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.tvHumi.text = data.humiText
         binding.tvLux.text = data.luxText
         binding.tvUpdated.text = getString(R.string.updated_at, data.updatedText)
+
+        // 指针位置用原始数值算；文本仍是上面格式化过的（离线时为 "--"，此时数值是 null，指针归位）
+        binding.gaugeTemp.setValue(data.temp)
+        binding.gaugeHumi.setValue(data.humi)
 
         val online = data.online && reachable
         binding.tvOnline.text = getString(if (online) R.string.online else R.string.offline)

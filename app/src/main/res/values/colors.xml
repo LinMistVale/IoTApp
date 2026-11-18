@@ -23,4 +23,11 @@
     <color name="level_info">#FF1E88E5</color>
     <color name="level_warn">#FFF9A825</color>
     <color name="level_danger">#FFC62828</color>
+
+    <!-- 仪表盘：轨道 / 温度弧 / 湿度弧 / 阈值刻线 -->
+    <color name="gauge_track">#FFE8E6DF</color>
+    <color name="gauge_temp">#FFD85A30</color>
+    <color name="gauge_humi">#FF378ADD</color>
+    <color name="gauge_threshold">#FFC62828</color>
+    <color name="text_secondary_hint">#FF888780</color>
 </resources>

@@ -95,4 +95,8 @@ MQTT：%3$s
     <string name="mqtt_connecting">连接中…</string>
     <string name="mqtt_disconnected">未连接（走 HTTP 兜底）</string>
     <string name="mqtt_failed">断开：%1$s</string>
+
+    <!-- 仪表盘 -->
+    <string name="gauge_threshold">告警阈值 %1$s%2$s</string>
+    <string name="gauge_threshold_unknown">阈值读取中…</string>
 </resources>

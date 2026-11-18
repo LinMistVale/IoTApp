@@ -48,6 +48,9 @@ fun TelemetryDto.toUi(
     online = online,
     // TODO(D5)：改成读 /config 的 stale_seconds，避免 interval=30 时首页永远显示"过期"
     stale = online && nowSec - ts > staleSeconds,
+    temp = temp?.toFloat(),
+    humi = humi?.toFloat(),
+    lux = lux?.toFloat(),
 )
 
 // ---------- 能力发现 ----------
