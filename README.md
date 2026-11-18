@@ -23,7 +23,7 @@
 
 | 页面 | 能力 |
 |---|---|
-| 首页 | 温度 / 湿度 / 光照三张卡片、在线状态、相对更新时间、下拉刷新；**MQTT 实时推送，数值自动跳动，不用手动刷新**；数据陈旧时置灰提示；右上角告警入口带未读角标、设置入口 |
+| 首页 | **温度、湿度各一个半圆仪表盘**：指针位置表示当前值在量程里的位置，红色刻线是告警阈值，量程与阈值全部取自 `/config`；另有光照卡片、在线状态、相对更新时间、下拉刷新；**MQTT 实时推送，数值自动跳动，不用手动刷新**；数据陈旧时置灰提示；右上角告警入口带未读角标、设置入口 |
 | 历史 | 温度 / 湿度 / 光照切换，最近 1 小时 / 24 小时，MPAndroidChart 折线图，标注"后端已降采样" |
 | 控制 | 开关灯、温度阈值、湿度阈值、上报间隔、音量、朗读文本；**全部由 `/config` 的 `commands` 与 `thresholds` 渲染，XML 里不写死任何范围值** |
 | 对话 | AI 文字问答，支持后端返回的 `action`（如顺带控制设备） |
@@ -39,7 +39,7 @@
 - **Retrofit 2.11 + Gson + OkHttp**，普通接口 5 秒超时，AI 对话单独 15 秒
 - **Paho MQTT 1.2.5**，QoS1 订阅 `iot/{id}/#`，断线自动重连
 - **Coroutines + Flow / StateFlow**，UI 只订阅状态
-- **Material 3 + MPAndroidChart**
+- **Material 3 + MPAndroidChart**（历史折线）；仪表盘是自绘 `GaugeView`（`Canvas.drawArc`），不引图表库
 - **JUnit4** 做契约测试与 Mapper 测试
 
 ## 架构
@@ -165,6 +165,7 @@ app/src/main/java/com/example/iotapp/
 ├── settings/                SharedPreferences 封装（地址、设备 ID、clientId、通知游标）
 └── ui/
     ├── home/ history/ control/ chat/ alarm/ settings/
+    ├── widget/              GaugeView：自绘半圆仪表盘，只画不判定
     └── common/              ViewModel 工厂
 ```
 
